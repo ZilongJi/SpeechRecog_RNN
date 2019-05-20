@@ -8,5 +8,5 @@ librosa\
 tqdm
 
 ## Dataset
-![SCD](http://download.tensorflow.org/data/speech_commands_v0.01.tar.gz)(Speech Commands Dataset)
+![SCD](https://www.kaggle.com/c/tensorflow-speech-recognition-challenge/data)(Speech Commands Dataset)
 
