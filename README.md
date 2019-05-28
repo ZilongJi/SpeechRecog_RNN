@@ -1,5 +1,5 @@
 # SpeechRecog
-Speech Commands Recognition with a Reservior Decision Making Network
+Speech Commands Recognition with different RNN models
 
 ### Requirements
 python 3.6.5\
