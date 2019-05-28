@@ -1,4 +1,4 @@
-# SpeechRecog
+# SpeechRecog_RNN
 Speech Commands Recognition with different RNN models
 
 ### Requirements
