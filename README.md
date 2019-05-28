@@ -5,6 +5,9 @@ Speech Commands Recognition with a Reservior Decision Making Network
 python 3.6.5\
 pytorch 1.0\
 librosa\
+lyon\
+scipy\
+numpy\
 tqdm
 
 ## Dataset
