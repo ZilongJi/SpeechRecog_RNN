@@ -75,8 +75,9 @@ def train(args, model, device, optimizer, loss_func, train_loader, val_loader, t
         ep_st = time.time()  
         correct = 0
         for data, target in train_loader:
-            #pdb.set_trace()
             data, target = data.to(device), target.to(device)
+            print(data.shape)
+            pdb.set_trace()
             optimizer.zero_grad()
             preds = model(data)
             #pdb.set_trace()
@@ -159,7 +160,7 @@ def main(args, HU):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='PyTorch Key Words Speech Recognition Task')
-    parser.add_argument('--data_dir', type=str, metavar='PATH', default='../SpeechRecog_CNN/Dataset/cut')
+    parser.add_argument('--data_dir', type=str, metavar='PATH', default='../SpeechRecog/SpeechRecog_CNN/Dataset/cut')
     parser.add_argument('--batch-size', type=int, default=2, metavar='N',
                         help='input batch size for training (default: 32)')
     parser.add_argument('--epochs', type=int, default=200, metavar='N',
@@ -177,7 +178,7 @@ if __name__ == '__main__':
                         help='new sampling rate')                
     parser.add_argument('--seed', type=int, default=123, metavar='S',
                         help='random seed (default: 1)')                         
-    parser.add_argument('--frontend', type=str, default='mfcc')
+    parser.add_argument('--frontend', type=str, default='mfcc_delta')
     parser.add_argument('--num_classes', type=int, default=10)
     parser.add_argument('--num_samples', type=int, default=10)
                                                                     
@@ -186,7 +187,7 @@ if __name__ == '__main__':
     episodes=20
     #HU = [5,10,15,20,25,30,35,40,45,50]
     #HU = [50, 200, 500, 1000]
-    HU = [20]
+    HU = [50]
     ALL_ACC = []
     MEAN_ACC = []
     STD_ACC = []

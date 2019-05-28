@@ -197,12 +197,14 @@ class KWSData(Dataset):
             calc = LyonCalc()
             waveform = np.asarray(wav, dtype=np.float64)
             #print(osp.join(self.root_dir, 'audio', self.data_list[index]))
-            output = calc.lyon_passive_ear(waveform, sample_rate, decimation_factor)
+            output = calc.lyon_passive_ear(waveform, sample_rate, decimation_factor, ear_q=16, step_factor=2)
             
             output = np.float32(output)
             
             label = self.class2num[self.data_list[index].split("/")[0]]  
-                                               
+            
+            print(output.shape)
+                                              
             return output, label
         
         else:
