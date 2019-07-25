@@ -4,6 +4,9 @@ import time
 import pdb
 from tqdm import tqdm
 import numpy as np
+import warnings
+warnings.filterwarnings("ignore")
+
 np.random.seed(123)
 
 import torch
