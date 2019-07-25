@@ -22,10 +22,9 @@ torch.manual_seed(100)
 torch.cuda.manual_seed_all(100) 
 
 def get_data(args):
-    
-    #TODO: apply fancy transformations to data pre-processing
-    
-    #TODO: use larger batch size(current batch size is 2)
+
+#    mfcc_transform = transforms.Compose([
+#        transforms.Normalize(mean=[-0.2107], std=[6.6551])])    
     
     train_set = KWSData(args.data_dir, 
         mode='train', 
@@ -43,7 +42,7 @@ def get_data(args):
         sample_rate=args.sample_rate, 
         new_sample_rate=args.new_sample_rate,
         select_class=train_set.select_class,
-        num_samples=args.num_samples, 
+        num_samples=10, 
         transform=None, 
         frontend=args.frontend) 
     val_loader = DataLoader(validate_set, batch_size=args.batch_size, shuffle=False, num_workers=8)
@@ -54,6 +53,7 @@ def get_data(args):
         new_sample_rate=args.new_sample_rate,
         select_class=train_set.select_class,
         num_samples=100,
+        #transform=transforms.Compose([transforms.ToTensor()])) 
         transform=None,
         frontend=args.frontend)
     test_loader = DataLoader(test_set, batch_size=args.batch_size, shuffle=False, num_workers=8)
@@ -63,9 +63,6 @@ def get_data(args):
 def train(args, model, device, optimizer, loss_func, train_loader, val_loader, test_loader):
     
     #start training
-    
-    #TODO: Using larger training epochs?
-    
     for epoch in range(args.epochs):
         
         #Adjust learning rate
@@ -84,9 +81,11 @@ def train(args, model, device, optimizer, loss_func, train_loader, val_loader, t
         correct = 0
         for data, target in train_loader:
             data, target = data.to(device), target.to(device)
-
+            #print(data.shape)
+            #pdb.set_trace()
             optimizer.zero_grad()
             preds = model(data)
+            #pdb.set_trace()
             
             loss = loss_func(preds, target).to(device)
             
@@ -109,9 +108,12 @@ def train(args, model, device, optimizer, loss_func, train_loader, val_loader, t
         print(total_log)  
         
         #validation 
-        #TODO:Use validation for early stopping.
-        #only for monitoring here. 
-        val_acc = test(args, model, device, loss_func, val_loader)            
+        val_acc = test(args, model, device, loss_func, val_loader)
+            
+    #adjust learning rate back to initialized learning rate
+    print('Learning rate adjuested back to base learning rate {:.10f}'.format(args.base_lr))
+    for g in optimizer.param_groups:
+        g['lr'] = args.base_lr             
         
     #test
     test_acc = test(args, model, device, loss_func, test_loader) 
@@ -137,7 +139,7 @@ def test(args, model, device, loss_func, test_loader):
 
     return correct*1. / len(test_loader.dataset)
 
-def main(args):
+def main(args, HU):
     use_cuda = not args.no_cuda and torch.cuda.is_available()
     torch.manual_seed(args.seed)
     device = torch.device("cuda:0" if use_cuda else "cpu") 
@@ -146,13 +148,14 @@ def main(args):
     
     loss_func = nn.CrossEntropyLoss()
     
-    #TODO: using different network architectures
-    #TODO: using gradients clipping
-    model = SimpleGRU(args, num_classes=args.num_classes, hidden_units=args.hidden_numbers, hidden_layers=1).to(device)
+    model = SimpleGRU(args, num_classes=args.num_classes, hidden_units=HU, hidden_layers=1).to(device)
     
-    #model = SimpleLSTM(args, num_classes=args.num_classes, hidden_units=args.hidden_numbers, hidden_layers=1).to(device)
+    #model = SimpleLSTM(args, num_classes=args.num_classes, hidden_units=HU, hidden_layers=1).to(device)
     
-    #TODO: Using different optimization tricks
+    #model = LinearClassifier(num_classes=args.num_classes).to(device)
+    
+    #summary(model, (16,128))
+    
     #optimizer = optim.SGD(model.parameters(), lr=args.base_lr, momentum=args.momentum)
     optimizer = optim.Adam(model.parameters(), lr=args.base_lr)
     
@@ -183,29 +186,40 @@ if __name__ == '__main__':
     parser.add_argument('--frontend', type=str, default='mfcc_delta')
     parser.add_argument('--num_classes', type=int, default=10)
     parser.add_argument('--num_samples', type=int, default=10)
-    parser.add_argument('--hidden_numbers', type=int, default=50)
                                                                     
     args = parser.parse_args()  
     
-    #repeat 20 times to get the mean and std value due to the large variance in sampling process
-    rounds=20
-
-    ACC = []
-    for round_ in range(rounds):
-        print("~"*50)
-        print("~"*50)
-        print('Current training round is {}'.format(round_))
-        print("~"*50)
-        print("~"*50)
-        acc = main(args)                        
-        ACC.append(acc)
-        
-    mean_acc = np.mean(ACC)
-    std_acc = np.std(ACC)
-    print(ACC)
-    print('mean acc is ', mean_acc)
-    print('std acc is ', std_acc)
-           
+    episodes=20
+    #HU = [5,10,15,20,25,30,35,40,45,50]
+    #HU = [50, 200, 500, 1000]
+    HU = [100]
+    ALL_ACC = []
+    MEAN_ACC = []
+    STD_ACC = []
+    for hu in HU:
+        ACC = []
+        for episode in range(episodes):
+            print("~"*50)
+            print("~"*50)
+            print('Current training episode is {}, hidden units number is {}'.format(episode,hu))
+            print("~"*50)
+            print("~"*50)
+            acc = main(args, hu)                        
+            ACC.append(acc)
+            
+        mean_acc = np.mean(ACC)
+        std_acc = np.std(ACC)
+        MEAN_ACC.append(mean_acc)
+        STD_ACC.append(std_acc)
+        print(ACC)
+        print('mean acc is ', mean_acc)
+        print('std acc is ', std_acc)
+            
+        ALL_ACC.append(ACC)
+    
+    print(ALL_ACC)   
+    print(MEAN_ACC)
+    print(STD_ACC)     
         
 
               

@@ -1,29 +1,40 @@
 from lyon.calc import LyonCalc
-from scipy.io import wavfile 
+import librosa 
 import numpy as np
-from code.utils import pad_audio, chop_audio, log_specgram
 from scipy import signal
+import matplotlib.pyplot as plt
 import pdb
 
 #filename = '../SpeechRecog_CNN/Dataset/cut/audio/up/571c044e_nohash_0.wav'
-filename = '../SpeechRecog_CNN/Dataset/cut/audio/zero/981e2a16_nohash_1.wav'
-decimation_factor = 64
+filename = '../../SpeechRecog/SpeechRecog_CNN/Dataset/cut/audio/zero/981e2a16_nohash_1.wav'
+
 calc = LyonCalc()
 
-sample_rate, old_wav = wavfile.read(filename)
+wav, sample_rate = librosa.load(filename, sr=16000)
+waveform = np.asarray(wav, dtype=np.float64)
 
-wav = pad_audio(old_wav, L=8000)
-if len(wav)>8000:
-    wav = chop_audio(wav, L=8000)
-resampled = signal.resample(wav, int(sample_rate / sample_rate * wav.shape[0]))
+lyon_output = calc.lyon_passive_ear(waveform, sample_rate, decimation_factor=64, ear_q=8, step_factor=0.5)
+pdb.set_trace()
+print(lyon_output.shape)
+
+#plot
+fig = plt.figure(figsize=(14, 8))
+ax1 = fig.add_subplot(211)
+ax1.set_title('Raw wave of zero/981e2a16_nohash_1.wav')
+ax1.set_ylabel('Amplitude', fontsize=15)
+ax1.plot(np.linspace(0, len(wav)/sample_rate, len(wav)), wav)
+
+ax2 = fig.add_subplot(212)
+ax2.imshow(lyon_output.T, aspect='auto')
+ax2.set_title('Cochlea Response of zero/981e2a16_nohash_1.wav')
+ax2.set_ylabel('Auditory Nerve Place', fontsize=15)
+ax2.set_xlabel('Time', fontsize=15)  
+           
+plt.savefig('./figure/lyon_wav.png')
+
+plt.show()
 
 pdb.set_trace()
-
-waveform1 = np.asarray(old_wav, dtype=np.float64)
-output = calc.lyon_passive_ear(waveform1, sample_rate, decimation_factor)
-
-waveform2 = np.asarray(resampled, dtype=np.float64)
-output = calc.lyon_passive_ear(waveform2, sample_rate, decimation_factor)
 
 
 

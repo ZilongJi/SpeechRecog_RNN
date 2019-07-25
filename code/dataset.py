@@ -193,17 +193,19 @@ class KWSData(Dataset):
             return output, label 
         
         elif self.frontend == 'lyon':
-            decimation_factor = 256
             calc = LyonCalc()
-            waveform = np.asarray(wav, dtype=np.float64)
-            #print(osp.join(self.root_dir, 'audio', self.data_list[index]))
-            output = calc.lyon_passive_ear(waveform, sample_rate, decimation_factor, ear_q=16, step_factor=2)
             
-            output = np.float32(output)
+            wav, sample_rate = librosa.load(osp.join(osp.join(self.root_dir, 'audio', self.data_list[index])), sr=16000)
+            waveform = np.asarray(wav, dtype=np.float64)
+            
+            #print(osp.join(self.root_dir, 'audio', self.data_list[index]))
+            output = calc.lyon_passive_ear(waveform, sample_rate, decimation_factor=256, ear_q=4, step_factor=0.25)
+            
+            output = np.asarray(output, dtype=np.float32)
+            
+            output = output/np.max(output)
             
             label = self.class2num[self.data_list[index].split("/")[0]]  
-            
-            print(output.shape)
                                               
             return output, label
         

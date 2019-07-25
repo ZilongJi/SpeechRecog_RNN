@@ -67,7 +67,7 @@ class SimpleLSTM(nn.Module):
         super(SimpleLSTM, self).__init__()
         #Define the LSTM layer, batch_first=True means input and output tensors are provided as (batch, seq, feature)
         if args.frontend=='specgram':
-            IS=81
+            IS=161
         elif args.frontend=='melspecgram':
             IS=128
         elif args.frontend=='mfcc':
@@ -77,7 +77,7 @@ class SimpleLSTM(nn.Module):
         elif args.frontend=='mfcc_all':
             IS=26  
         elif args.frontend=='lyon':
-            IS=86
+            IS=41
         else:
             raise RuntimeError("Use the correct front end!")   
         self.lstm = nn.LSTM(input_size=IS, hidden_size=hidden_units, num_layers=hidden_layers, batch_first=True) 
@@ -107,7 +107,7 @@ class VallinaRNN(nn.Module):
         elif args.frontend=='mfcc_all':
             IS=26       
         elif args.frontend=='lyon':
-            IS=86
+            IS=41
         else:
             raise RuntimeError("Use the correct front end!")   
         self.rnn = nn.RNN(input_size=IS, hidden_size=hidden_units, num_layers=1, batch_first=True)
@@ -137,7 +137,7 @@ class SimpleGRU(nn.Module):
         elif args.frontend=='mfcc_all':
             IS=26             
         elif args.frontend=='lyon':
-            IS=86
+            IS=41
         else:
             raise RuntimeError("Use the correct front end!")   
         self.gru = nn.GRU(input_size=IS, hidden_size=hidden_units, num_layers=hidden_layers, batch_first=True)
